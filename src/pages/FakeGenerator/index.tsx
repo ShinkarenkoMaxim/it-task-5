@@ -20,15 +20,17 @@ export const FakeGenerator: React.FC = () => {
     seed: 0,
   });
 
+  // If form is changed - getting new data
   useEffect(() => {
     (async () => {
       try {
         const res = await getAccounts({
-          page,
+          page: 1, // always set page to 1 for getting new set of data
           ...formData,
         });
 
-        setData(res.data);
+        setPage(1); // Set to first
+        setData(res.data); // Replacing data
       } catch (err) {
         console.log(err);
       }
