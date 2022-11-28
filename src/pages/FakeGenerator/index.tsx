@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { CSVLink } from 'react-csv';
+import { FaFileCsv } from 'react-icons/fa';
+
 import { getAccounts } from '../../api';
 import { AccountForm } from '../../interfaces/Account';
 import { DataTable } from '../../components/DataTable';
@@ -59,6 +62,14 @@ export const FakeGenerator: React.FC = () => {
       <div className="w-full flex flex-col gap-8">
         <Title />
         <Form onChange={handleChangeFormData} />
+        {data.length > 0 && (
+          <CSVLink data={data} target="_blank" className="flex justify-end">
+            <div className="flex gap-2 hover:text-emerald-500">
+              <FaFileCsv size={25} className="hover:text-emerald-500" />
+              <span>Export to CSV</span>
+            </div>
+          </CSVLink>
+        )}
         <InfiniteScroll
           dataLength={data.length}
           next={handleNext}
