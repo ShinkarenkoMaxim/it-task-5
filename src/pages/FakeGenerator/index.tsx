@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { getAccounts } from '../../api';
+import { AccountForm } from '../../interfaces/Account';
 import { DataTable } from '../../components/DataTable';
 import { Form } from '../../components/Form';
 
@@ -10,13 +13,58 @@ const Title: React.FC = () => (
 
 export const FakeGenerator: React.FC = () => {
   const [page, setPage] = useState<number>(1);
+  const [data, setData] = useState<any[]>([]);
+  const [formData, setFormData] = useState<AccountForm>({
+    country: 'usa',
+    errorsCount: 0,
+    seed: 0,
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await getAccounts({
+          page,
+          ...formData,
+        });
+
+        setData(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    })();
+  }, [formData]);
+
+  const handleNext = async () => {
+    try {
+      const res = await getAccounts({
+        page: page + 1,
+        ...formData,
+      });
+      setPage(page + 1);
+      setData([...data, ...res.data]);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleChangeFormData = (accountFormData: AccountForm) => {
+    setFormData(accountFormData);
+  };
 
   return (
-    <div className="max-w-5xl container mx-auto">
-      <div className="w-full flex flex-col gap-6">
+    <div className="max-w-7xl container mx-auto">
+      <div className="w-full flex flex-col gap-8">
         <Title />
-        <Form />
-        <DataTable />
+        <Form onChange={handleChangeFormData} />
+        <InfiniteScroll
+          dataLength={data.length}
+          next={handleNext}
+          hasMore={true}
+          loader={<h4>Loading...</h4>}
+        >
+          <DataTable accounts={data} />
+        </InfiniteScroll>
       </div>
     </div>
   );
